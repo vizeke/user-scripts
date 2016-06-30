@@ -79,7 +79,7 @@
     });
 
     //Init
-    addGlobalStyle('main.main-left { width: auto; }');
+    addGlobalStyle('.blog main.main-left { width: auto; }');
     cleanAds();
     $(document).ready(function(){
         procArticles($('div.wppost[processed!=1]'));
