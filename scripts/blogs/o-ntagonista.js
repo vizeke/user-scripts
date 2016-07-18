@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         O Antagonista - Speed Reading
+// @name         O Antagonista - Speed Read
 // @namespace    http://oantagonista.com/speedread
-// @version      0.4.1
+// @version      0.5.0
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
 // @match        http://www.oantagonista.com/
@@ -23,39 +23,36 @@
         head.appendChild(style);
     }
 
-    function normalizeUrl(url) {
-        return url.endsWith('/') ? url : url + '/';
-    }
-
     function procArticles($articles){
         var baseUrlPosts = 'http://www.oantagonista.com';
 
         $articles.each(function(i, itemPost) {
-            var url = baseUrlPosts + $(itemPost).first().find('a.title').attr('href');
+            var url = baseUrlPosts + $(itemPost).first().find('a').first().attr('href');
 
-            $.ajax({
-                url: normalizeUrl(url),
-                "X-Requested-With": "XMLHttpRequest"
-            })
+            $.get(url)
                 .success(function(response) {
 
-                var $content = $(response).find('article');
+                var $content = $(response).find('div.l-main-right').first().find('p');
                 var actualContent = [];
 
-                $content.find('h1').remove();
-                $content.find('div').remove();
+                $content.each(function(j, itemP){
+                    if ($(itemP).attr('class') === undefined){
+                        actualContent.push(itemP);
+                    }
+                });
 
                 $(itemPost).attr('processed', 1);
-                $(itemPost).find('a.more').remove();
-                $(itemPost).find('div.post-excerpt').empty().append($content);
+                $(itemPost).find('p').remove();
+                $(itemPost).find('.post-more').remove();
+                $(itemPost).find('.post-summary').append(actualContent);
             });
         });
     }
 
     function cleanAds(){
-        $('div.ad-header').remove();
-        $('section.sidebar').remove();
-        $('ng-include[src="\'template_anuncios.html\'"]').remove();
+        $('div.banner').remove();
+        $('aside').remove();
+        $('ins').remove();
     }
 
     var procArticle = true;
@@ -64,7 +61,7 @@
     $(document).scroll(function(){
         if (procArticle){
             setTimeout(function(){
-                procArticles($('div.wppost[processed!=1]'));
+                procArticles($('article.post[processed!=1]'));
                 procArticle = true;
             }, 1000);
         }
@@ -79,22 +76,17 @@
     });
 
     //Init
-    addGlobalStyle('.blog main.main-left { width: auto; }');
-    cleanAds();
-    $(document).ready(function(){
-        procArticles($('div.wppost[processed!=1]'));
+    addGlobalStyle('div.post-summary { width: auto; }');
+    addGlobalStyle('article.post.first-post { margin-top: 25px; }');
 
-        $('h1.logo a, div.logo-mobile a').click(function(e) {
-            e.preventDefault();
-            window.location.reload();
-        });
-    });
+    cleanAds();
+    procArticles($('article.post[processed!=1]'));
 
 })(jQuery);
 
 //Init on global context
-/*$(document).ready(function(){
-    specific site function in case of overlay adds
+$(document).ready(function(){
+    //specific site function in case of overlay adds
     if (dclk_hide_overlay)
         dclk_hide_overlay();
-});*/
+});
