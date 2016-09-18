@@ -43,22 +43,22 @@
 
 //Init on global context
 $( document ).ready( function () {
-    var observer;
-    function resizeImage() {
-        if ( observer ) {
-            observer.disconnect();
+    var imageObserver;
+    function observeImages() {
+        if ( imageObserver ) {
+            imageObserver.disconnect();
         }
 
         // select the target node
         var target = $( '#app > div > div:nth-child(2) > span' )[ 0 ];
         // create an observer instance
-        observer = new MutationObserver( function ( mutations ) {
+        imageObserver = new MutationObserver( function ( mutations ) {
             var divParent = $( 'div.media > div.object-fit > div' );
             var h = divParent.height();
             var w = divParent.width();
             var img = $( divParent.children()[ 0 ] );
 
-            if ( w > h ) {
+            if (w / h > 1.78) {
                 img.css( 'width', '100%' ).css( 'height', 'auto' );
                 divParent.css( 'width', '100%' ).css( 'height', 'auto' );
             } else {
@@ -73,7 +73,7 @@ $( document ).ready( function () {
         var config = { childList: true, subtree: true };
 
         // pass in the target node, as well as the observer options
-        observer.observe( target, config );
+        imageObserver.observe(target, config);
     }
 
     var messagesObserver;
@@ -85,17 +85,34 @@ $( document ).ready( function () {
         var target = '#main > div.pane-body.pane-chat-tile-container > div > div > div.message-list';
         messagesObserver = new MutationObserver( function ( mutations ) {
 
-
         });
 
         // configuration of the observer:
-        var config = { childList: true, subtree: true };
+        var config = { childList: true };
 
         // pass in the target node, as well as the observer options
         messagesObserver.observe( target, config );
     }
 
-    //specific site function in case of overlay adds
-    $( 'body' ).on( 'click', '#pane-side > div > div > div > div', resizeImage );
-    $( 'body' ).on( 'click', '', observeMessages );
+    var timeOutNext = undefined;
+
+    function startObservers() {
+        if (timeOutNext) {
+            clearTimeout(myVar);
+        }
+
+        observeImages();
+        // observeMessages();
+
+        timeOutNext = setTimeout(function () {
+            nextMedia();
+        }, 5000);
+    }
+
+    function nextMedia() {
+        $('.btn.btn-round.btn-media-next').click();
+        timeOutNext = setTimeout(nextMedia, 5000);
+    }
+
+    $( 'body' ).on( 'click', '#pane-side > div > div > div > div', startObservers );
 });
