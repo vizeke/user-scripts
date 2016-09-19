@@ -43,6 +43,17 @@
 
 //Init on global context
 $( document ).ready( function () {
+
+    function getMediaParent() {
+        let divMedia = $( 'div.media > div.object-fit > div' );
+        if ( divMedia.length > 0 ) {
+            return divMedia;
+        } else {
+            if ( $( 'div.media > audio' ).length > 0 ) {
+                return $( 'div.media' );
+            }
+        }
+    }
     var imageObserver;
     function observeImages() {
         if ( imageObserver ) {
@@ -53,17 +64,30 @@ $( document ).ready( function () {
         var target = $( '#app > div > div:nth-child(2) > span' )[ 0 ];
         // create an observer instance
         imageObserver = new MutationObserver( function ( mutations ) {
-            var divParent = $( 'div.media > div.object-fit > div' );
+            var divParent = getMediaParent();
             var h = divParent.height();
             var w = divParent.width();
-            var img = $( divParent.children()[ 0 ] );
+            var mediaObj = $( divParent.children()[ 0 ] );
 
-            if ( w / h > 1.78 ) {
-                img.css( 'width', '100%' ).css( 'height', 'auto' );
-                divParent.css( 'width', '100%' ).css( 'height', 'auto' );
-            } else {
-                img.css( 'height', '100%' ).css( 'width', 'auto' );
-                divParent.css( 'height', '100%' ).css( 'width', 'auto' );
+            if ( mediaObj[ 0 ] ) {
+                if ( mediaObj.is( 'img' ) ) {
+                    mediaObj.load( function ( e ) {
+                        startTimeOutNext();
+                    });
+                }
+
+                mediaObj[ 0 ].addEventListener( 'loadeddata', function ( e ) {
+                    startTimeOutNext( e.target.duration * 1000 );
+                }, false );
+
+                if ( ( mediaObj.is( 'img' ) ) || ( mediaObj.is( 'video' ) ) )
+                    if ( w / h > 1.78 ) {
+                        mediaObj.css( 'width', '100%' ).css( 'height', 'auto' );
+                        divParent.css( 'width', '100%' ).css( 'height', 'auto' );
+                    } else {
+                        mediaObj.css( 'height', '100%' ).css( 'width', 'auto' );
+                        divParent.css( 'height', '100%' ).css( 'width', 'auto' );
+                    }
             }
 
             // observer.disconnect();
@@ -84,7 +108,7 @@ $( document ).ready( function () {
 
         var target = $( '#main > div.pane-body.pane-chat-tile-container > div > div > div.message-list' )[ 0 ];
         messagesObserver = new MutationObserver( function ( mutations ) {
-            // alert( 'new message' );
+            nextMedia();
         });
 
         // configuration of the observer:
@@ -94,31 +118,32 @@ $( document ).ready( function () {
         messagesObserver.observe( target, config );
     }
 
-    var defaultTransitionTime = 30000;
-    var timeOutNext = undefined;
-    function startTimeOutNext() {
+    var timeOutNext;
+    function startTimeOutNext( transitionInterval ) {
+        transitionInterval = transitionInterval || 5000;
+
         if ( timeOutNext ) {
             clearTimeout( timeOutNext );
         }
 
         timeOutNext = setTimeout( function () {
-            nextMedia();
-        }, defaultTransitionTime );
+            timeOutNext = undefined;
+            nextMedia( transitionInterval );
+        }, transitionInterval );
     }
 
     function nextMedia() {
-        // Send KeyDown Event
-        let event = new Event('keydown');
-        event.keyCode= 39; // keyright
-        window.dispatchEvent(event);
-
-        timeOutNext = setTimeout( nextMedia, defaultTransitionTime );
+        if ( !timeOutNext ) {
+            // Send KeyDown Event
+            let event = new Event( 'keydown' );
+            event.keyCode = 39; // keyright
+            window.dispatchEvent( event );
+        }
     }
 
     function startObservers() {
         observeImages();
-        // observeMessages();
-        startTimeOutNext();
+        observeMessages();
     }
 
     $( 'body' ).on( 'click', '#pane-side > div > div > div > div', startObservers );
