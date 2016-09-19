@@ -58,7 +58,7 @@ $( document ).ready( function () {
             var w = divParent.width();
             var img = $( divParent.children()[ 0 ] );
 
-            if (w / h > 1.78) {
+            if ( w / h > 1.78 ) {
                 img.css( 'width', '100%' ).css( 'height', 'auto' );
                 divParent.css( 'width', '100%' ).css( 'height', 'auto' );
             } else {
@@ -73,7 +73,7 @@ $( document ).ready( function () {
         var config = { childList: true, subtree: true };
 
         // pass in the target node, as well as the observer options
-        imageObserver.observe(target, config);
+        imageObserver.observe( target, config );
     }
 
     var messagesObserver;
@@ -82,9 +82,9 @@ $( document ).ready( function () {
             messagesObserver.disconnect();
         }
 
-        var target = '#main > div.pane-body.pane-chat-tile-container > div > div > div.message-list';
+        var target = $( '#main > div.pane-body.pane-chat-tile-container > div > div > div.message-list' )[ 0 ];
         messagesObserver = new MutationObserver( function ( mutations ) {
-
+            // alert( 'new message' );
         });
 
         // configuration of the observer:
@@ -94,24 +94,31 @@ $( document ).ready( function () {
         messagesObserver.observe( target, config );
     }
 
+    var defaultTransitionTime = 30000;
     var timeOutNext = undefined;
-
-    function startObservers() {
-        if (timeOutNext) {
-            clearTimeout(myVar);
+    function startTimeOutNext() {
+        if ( timeOutNext ) {
+            clearTimeout( timeOutNext );
         }
 
-        observeImages();
-        // observeMessages();
-
-        timeOutNext = setTimeout(function () {
+        timeOutNext = setTimeout( function () {
             nextMedia();
-        }, 5000);
+        }, defaultTransitionTime );
     }
 
     function nextMedia() {
-        $('.btn.btn-round.btn-media-next').click();
-        timeOutNext = setTimeout(nextMedia, 5000);
+        // Send KeyDown Event
+        let event = new Event('keydown');
+        event.keyCode= 39; // keyright
+        window.dispatchEvent(event);
+
+        timeOutNext = setTimeout( nextMedia, defaultTransitionTime );
+    }
+
+    function startObservers() {
+        observeImages();
+        // observeMessages();
+        startTimeOutNext();
     }
 
     $( 'body' ).on( 'click', '#pane-side > div > div > div > div', startObservers );
