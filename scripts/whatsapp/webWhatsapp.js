@@ -9,20 +9,21 @@
 // @require      https://code.jquery.com/jquery-2.1.4.min.js
 // ==/UserScript==
 
-( function ( $ ) {
-    'use strict';
+( function( $ ) {
+
 
     function addGlobalStyle( css ) {
-        var head, style;
+        let head;
+        let style;
         head = document.getElementsByTagName( 'head' )[ 0 ];
-        if ( !head ) { return; }
+        if ( !head ) {
+            return;
+        }
         style = document.createElement( 'style' );
         style.type = 'text/css';
         style.innerHTML = css;
         head.appendChild( style );
     }
-
-
 
     //Init
     addGlobalStyle( '.media-viewer-thumbs-container { display: none; }' );
@@ -39,112 +40,112 @@
 
     addGlobalStyle( 'div.media > div.object-fit > div { position: absolute; padding: 0; }' );
 
-})( jQuery );
+    //Init on global context
+    $( document ).ready( function() {
 
-//Init on global context
-$( document ).ready( function () {
-
-    function getMediaParent() {
-        let divMedia = $( 'div.media > div.object-fit > div' );
-        if ( divMedia.length > 0 ) {
-            return divMedia;
-        } else {
-            if ( $( 'div.media > audio' ).length > 0 ) {
-                return $( 'div.media' );
+        function getMediaParent() {
+            let divMedia = $( 'div.media > div.object-fit > div' );
+            if ( divMedia.length > 0 ) {
+                return divMedia;
+            } else {
+                if ( $( 'div.media > audio' ).length > 0 ) {
+                    return $( 'div.media' );
+                }
             }
         }
-    }
-    var imageObserver;
-    function observeImages() {
-        if ( imageObserver ) {
-            imageObserver.disconnect();
-        }
+        var imageObserver;
+        function observeImages() {
+            if ( imageObserver ) {
+                imageObserver.disconnect();
+            }
 
-        // select the target node
-        var target = $( '#app > div > div:nth-child(2) > span' )[ 0 ];
-        // create an observer instance
-        imageObserver = new MutationObserver( function ( mutations ) {
-            var divParent = getMediaParent();
-            var h = divParent.height();
-            var w = divParent.width();
-            var mediaObj = $( divParent.children()[ 0 ] );
+            // select the target node
+            var target = $( '#app > div > div:nth-child(2) > span' )[ 0 ];
+            // create an observer instance
+            imageObserver = new MutationObserver( function( mutations ) {
+                var divParent = getMediaParent();
+                var h = divParent.height();
+                var w = divParent.width();
+                var mediaObj = $( divParent.children()[ 0 ] );
 
-            if ( mediaObj[ 0 ] ) {
-                if ( mediaObj.is( 'img' ) ) {
-                    mediaObj.load( function ( e ) {
-                        startTimeOutNext();
-                    });
+                if ( mediaObj[ 0 ] ) {
+                    if ( mediaObj.is( 'img' ) ) {
+                        mediaObj.load( function( e ) {
+                            startTimeOutNext();
+                        } );
+                    }
+
+                    mediaObj[ 0 ].addEventListener( 'loadeddata', function( e ) {
+                        startTimeOutNext( e.target.duration * 1000 );
+                    }, false );
+
+                    if ( ( mediaObj.is( 'img' ) ) || ( mediaObj.is( 'video' ) ) )
+                        if ( w / h > 1.78 ) {
+                            mediaObj.css( 'width', '100%' ).css( 'height', 'auto' );
+                            divParent.css( 'width', '100%' ).css( 'height', 'auto' );
+                        } else {
+                            mediaObj.css( 'height', '100%' ).css( 'width', 'auto' );
+                            divParent.css( 'height', '100%' ).css( 'width', 'auto' );
+                        }
                 }
 
-                mediaObj[ 0 ].addEventListener( 'loadeddata', function ( e ) {
-                    startTimeOutNext( e.target.duration * 1000 );
-                }, false );
+                // observer.disconnect();
+            } );
 
-                if ( ( mediaObj.is( 'img' ) ) || ( mediaObj.is( 'video' ) ) )
-                    if ( w / h > 1.78 ) {
-                        mediaObj.css( 'width', '100%' ).css( 'height', 'auto' );
-                        divParent.css( 'width', '100%' ).css( 'height', 'auto' );
-                    } else {
-                        mediaObj.css( 'height', '100%' ).css( 'width', 'auto' );
-                        divParent.css( 'height', '100%' ).css( 'width', 'auto' );
-                    }
+            // configuration of the observer:
+            var config = { childList: true, subtree: true };
+
+            // pass in the target node, as well as the observer options
+            imageObserver.observe( target, config );
+        }
+
+        var messagesObserver;
+        function observeMessages() {
+            if ( messagesObserver ) {
+                messagesObserver.disconnect();
             }
 
-            // observer.disconnect();
-        });
+            var target = $( '#main > div.pane-body.pane-chat-tile-container > div > div > div.message-list' )[ 0 ];
+            messagesObserver = new MutationObserver( function( mutations ) {
+                nextMedia();
+            } );
 
-        // configuration of the observer:
-        var config = { childList: true, subtree: true };
+            // configuration of the observer:
+            var config = { childList: true };
 
-        // pass in the target node, as well as the observer options
-        imageObserver.observe( target, config );
-    }
-
-    var messagesObserver;
-    function observeMessages() {
-        if ( messagesObserver ) {
-            messagesObserver.disconnect();
+            // pass in the target node, as well as the observer options
+            messagesObserver.observe( target, config );
         }
 
-        var target = $( '#main > div.pane-body.pane-chat-tile-container > div > div > div.message-list' )[ 0 ];
-        messagesObserver = new MutationObserver( function ( mutations ) {
-            nextMedia();
-        });
+        var timeOutNext;
+        function startTimeOutNext( transitionInterval ) {
+            transitionInterval = transitionInterval || 5000;
 
-        // configuration of the observer:
-        var config = { childList: true };
+            if ( timeOutNext ) {
+                clearTimeout( timeOutNext );
+            }
 
-        // pass in the target node, as well as the observer options
-        messagesObserver.observe( target, config );
-    }
-
-    var timeOutNext;
-    function startTimeOutNext( transitionInterval ) {
-        transitionInterval = transitionInterval || 5000;
-
-        if ( timeOutNext ) {
-            clearTimeout( timeOutNext );
+            timeOutNext = setTimeout( function() {
+                timeOutNext = undefined;
+                nextMedia( transitionInterval );
+            }, transitionInterval );
         }
 
-        timeOutNext = setTimeout( function () {
-            timeOutNext = undefined;
-            nextMedia( transitionInterval );
-        }, transitionInterval );
-    }
-
-    function nextMedia() {
-        if ( !timeOutNext ) {
-            // Send KeyDown Event
-            let event = new Event( 'keydown' );
-            event.keyCode = 39; // keyright
-            window.dispatchEvent( event );
+        function nextMedia() {
+            if ( !timeOutNext ) {
+                // Send KeyDown Event
+                let event = new Event( 'keydown' );
+                event.keyCode = 39; // keyright
+                window.dispatchEvent( event );
+            }
         }
-    }
 
-    function startObservers() {
-        observeImages();
-        observeMessages();
-    }
+        function startObservers() {
+            observeImages();
+            observeMessages();
+        }
 
-    $( 'body' ).on( 'click', '#pane-side > div > div > div > div', startObservers );
-});
+        $( 'body' ).on( 'click', '#pane-side > div > div > div > div', startObservers );
+    } );
+
+} )( jQuery );
