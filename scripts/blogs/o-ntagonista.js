@@ -32,19 +32,14 @@
             $.get(url)
                 .success(function(response) {
 
-                var $content = $(response).find('div.l-main-right').first().find('p');
-                var actualContent = [];
-
-                $content.each(function(j, itemP){
-                    if ($(itemP).attr('class') === undefined){
-                        actualContent.push(itemP);
-                    }
-                });
+                var $content = $(response).find('div.l-main-right:first').remove('.share');
+                $content.find('div.cpt-post.container-cpt').remove();
+                $content.find('div.share').remove();
 
                 $(itemPost).attr('processed', 1);
                 $(itemPost).find('p').remove();
                 $(itemPost).find('.post-more').remove();
-                $(itemPost).find('.post-summary').append(actualContent);
+                $(itemPost).find('.post-summary').append($content);
             });
         });
     }
