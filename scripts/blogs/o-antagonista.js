@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         O Antagonista - Speed Reading
 // @namespace    http://oantagonista.com/speedread
-// @version      0.6.0
+// @version      0.6.1
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
 // @match        http://www.oantagonista.com/
@@ -32,7 +32,9 @@
             $.get(url)
                 .success(function(response) {
 
-                var $content = $(response).find('div.l-main-right:first').remove('.share');
+                var $content = $(response).find('div.l-main-right:first');
+                $content.find('h2').remove();
+                $content.find('span.post-meta').remove();
                 $content.find('div.cpt-post.container-cpt').remove();
                 $content.find('div.share').remove();
 
