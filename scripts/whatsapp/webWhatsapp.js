@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 ( function( $ ) {
-
+    const DEFAULT_INTERVAL = 5000;
 
     function addGlobalStyle( css ) {
         let head;
@@ -119,7 +119,7 @@
 
         var timeOutNext;
         function startTimeOutNext( transitionInterval ) {
-            transitionInterval = transitionInterval || 5000;
+            transitionInterval = transitionInterval || DEFAULT_INTERVAL;
 
             if ( timeOutNext ) {
                 clearTimeout( timeOutNext );
