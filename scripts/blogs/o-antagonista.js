@@ -50,6 +50,7 @@
         $('div.banner').remove();
         $('aside').remove();
         $('ins').remove();
+        $('#testeop').remove();
     }
 
     var procArticle = true;
