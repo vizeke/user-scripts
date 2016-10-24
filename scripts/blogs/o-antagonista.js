@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         O Antagonista - Speed Reading
 // @namespace    http://oantagonista.com/speedread
-// @version      0.6.2
+// @version      0.6.3
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
 // @match        http://www.oantagonista.com/
@@ -37,6 +37,9 @@
                 $content.find('span.post-meta').remove();
                 $content.find('div.cpt-post.container-cpt').remove();
                 $content.find('div.share').remove();
+                $content.find('div.OUTBRAIN').remove();
+                $content.find('div.l-main-right').remove();
+                $content.find('script').remove();
 
                 $(itemPost).attr('processed', 1);
                 $(itemPost).find('p').remove();
@@ -50,7 +53,6 @@
         $('div.banner').remove();
         $('aside').remove();
         $('ins').remove();
-        $('#testeop').remove();
     }
 
     var procArticle = true;
