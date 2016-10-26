@@ -53,6 +53,7 @@
         $('div.banner').remove();
         $('aside').remove();
         $('ins').remove();
+        $('div.ob-widget').remove();
     }
 
     var procArticle = true;
