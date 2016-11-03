@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Whatsapp Web - Image carrosel
 // @namespace    http://whatsappweb.com/imagecarrosel
-// @version      0.1.0
-// @description  Fast reading of the micro blog!
+// @version      0.1.1
+// @description  Whatsapp web media slide show!
 // @author       ViZeke
 // @match        https://web.whatsapp.com/
 // @grant        none
