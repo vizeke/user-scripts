@@ -60,7 +60,7 @@
             }
 
             // select the target node
-            var target = $( '#app > div > div:nth-child(2) > span' )[ 0 ];
+            var target = $( '#app > div > span:nth-child(2)' )[ 0 ];
             // create an observer instance
             imageObserver = new MutationObserver( function( mutations ) {
                 var divParent = getMediaParent();
