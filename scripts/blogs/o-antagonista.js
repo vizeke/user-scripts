@@ -54,6 +54,7 @@
         $('aside').remove();
         $('ins').remove();
         $('div.ob-widget').remove();
+        $('div.header-newsletter').remove()
     }
 
     var procArticle = true;
