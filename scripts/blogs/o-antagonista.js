@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         O Antagonista - Speed Reading
 // @namespace    http://oantagonista.com/speedread
-// @version      0.6.3
+// @version      0.7.0
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
 // @match        http://www.oantagonista.com/
@@ -13,7 +13,9 @@
 (function($) {
     'use strict';
 
-    function addGlobalStyle(css) {
+    let tvAntagonista = false;
+
+    let addGlobalStyle = (css) => {
         var head, style;
         head = document.getElementsByTagName('head')[0];
         if (!head) { return; }
@@ -21,25 +23,23 @@
         style.type = 'text/css';
         style.innerHTML = css;
         head.appendChild(style);
-    }
+    };
 
     function procArticles($articles){
-        var baseUrlPosts = 'http://www.oantagonista.com';
+        const baseUrlPosts = 'http://www.oantagonista.com';
 
-        $articles.each(function(i, itemPost) {
-            var url = baseUrlPosts + $(itemPost).first().find('a').first().attr('href');
+        $articles.each( (i, itemPost) => {
+            const url = baseUrlPosts + $(itemPost).first().find('a').first().attr('href');
 
             $.get(url)
-                .success(function(response) {
+                .success( response => {
 
-                var $content = $(response).find('div.l-main-right:first');
-                $content.find('h2').remove();
-                $content.find('span.post-meta').remove();
-                $content.find('div.cpt-post.container-cpt').remove();
-                $content.find('div.share').remove();
-                $content.find('div.OUTBRAIN').remove();
-                $content.find('div.l-main-right').remove();
-                $content.find('script').remove();
+                let $allContent = $(response).find('div.l-main-right:first');
+                let $content = $allContent.find('div.the-content-text');
+                if (!tvAntagonista){
+                    $content.append($allContent.find('#dm_jukebox_iframe'));
+                    tvAntagonista = true;
+                }
 
                 $(itemPost).attr('processed', 1);
                 $(itemPost).find('p').remove();
@@ -49,26 +49,25 @@
         });
     }
 
-    function cleanAds(){
+    let cleanAds = () => {
         $('div.banner').remove();
         $('aside').remove();
         $('ins').remove();
         $('div.ob-widget').remove();
-        $('div.header-newsletter').remove()
-    }
+    };
 
-    var procArticle = true;
-    var procClean = true;
+    let procArticle = true;
+    let procClean = true;
 
-    $(document).scroll(function(){
-        if (procArticle){
-            setTimeout(function(){
+    $(document).scroll( () => {
+        if ( procArticle ){
+            setTimeout( () => {
                 procArticles($('article.post[processed!=1]'));
                 procArticle = true;
             }, 1000);
         }
-        if (procClean){
-            setTimeout(function(){
+        if ( procClean ){
+            setTimeout( () => {
                 cleanAds();
                 procClean = true;
             }, 2000);
@@ -83,12 +82,12 @@
 
     cleanAds();
     procArticles($('article.post[processed!=1]'));
-
 })(jQuery);
 
 //Init on global context
-$(document).ready(function(){
+$(document).ready( () => {
     //specific site function in case of overlay adds
-    if (dclk_hide_overlay)
+    if (dclk_hide_overlay) {
         dclk_hide_overlay();
+    }
 });
