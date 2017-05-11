@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         O Antagonista - Speed Reading
 // @namespace    http://oantagonista.com/speedread
-// @version      0.8.0
+// @version      0.8.1
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
 // @match        http://www.oantagonista.com/
@@ -282,6 +282,7 @@
                 $(itemPost).attr('processed', 1);
                 $(itemPost).find('p').remove();
                 $(itemPost).find('.post-more').remove();
+                $(itemPost).find('iframe').remove();
                 $(itemPost).find('.post-summary').append($content);
             });
         });
