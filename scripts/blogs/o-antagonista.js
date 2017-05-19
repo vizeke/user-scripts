@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         O Antagonista - Speed Reading
 // @namespace    http://oantagonista.com/speedread
-// @version      0.8.1
+// @version      0.8.2
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
 // @match        http://www.oantagonista.com/
