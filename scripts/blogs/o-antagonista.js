@@ -251,8 +251,6 @@
         }
     };
 
-    let tvAntagonista = false;
-
     let addGlobalStyle = (css) => {
         var head, style;
         head = document.getElementsByTagName('head')[0];
@@ -274,10 +272,6 @@
 
                 let $allContent = $(response).find('div.l-main-right:first');
                 let $content = $allContent.find('div.the-content-text');
-                if (!tvAntagonista){
-                    $content.append($allContent.find('#dm_jukebox_iframe'));
-                    tvAntagonista = true;
-                }
 
                 $(itemPost).attr('processed', 1);
                 $(itemPost).find('p').remove();
