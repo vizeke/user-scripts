@@ -318,7 +318,7 @@
         for(let i = 0; i < $articles.length; i++) {
             let $item = $($articles[i]);
             let itemTop = parseInt($item.position().top);
-            if( scrollTop < itemTop ){
+            if( scrollTop < itemTop - 1 ){
                 $(document).scrollTop( itemTop - headerHeight );
                 break;
             }
