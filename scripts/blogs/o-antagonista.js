@@ -334,6 +334,7 @@
 
     addGlobalStyle('div.post-summary { width: auto; }');
     addGlobalStyle('article.post.first-post { margin-top: 25px; }');
+    addGlobalStyle('#player-ao-vivo.playerfixo { margin: 0 780px; width: auto !important; min-height: 300px; min-width: 31%; }');
 
     cleanAds();
     procArticles($('article.post[processed!=1]'));
