@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         O Antagonista - Speed Reading
 // @namespace    http://oantagonista.com/speedread
-// @version      0.8.2
+// @version      0.9.0
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
+// @match        https://www.oantagonista.com/
 // @match        http://www.oantagonista.com/
+// @match        https://www.oantagonista.com/pagina/*
 // @match        http://www.oantagonista.com/pagina/*
 // @grant        none
 // @require      https://code.jquery.com/jquery-2.1.4.min.js
@@ -241,9 +243,9 @@
             var binding = this.all_shortcuts[shortcut_combination];
             delete(this.all_shortcuts[shortcut_combination]);
             if (!binding) return;
-            var type = binding['event'];
-            var ele = binding['target'];
-            var callback = binding['callback'];
+            var type = binding.event;
+            var ele = binding.target;
+            var callback = binding.callback;
 
             if (ele.detachEvent) ele.detachEvent('on' + type, callback);
             else if (ele.removeEventListener) ele.removeEventListener(type, callback, false);
@@ -262,22 +264,23 @@
     };
 
     function procArticles($articles){
-        const baseUrlPosts = 'http://www.oantagonista.com';
-
         $articles.each( (i, itemPost) => {
-            const url = baseUrlPosts + $(itemPost).first().find('a').first().attr('href');
+            let url = $(itemPost).first().find('a').first().attr('href');
+
+            if(document.location.href.indexOf('https') === -1){
+                url = url.replace('https://', 'http://');
+            }
 
             $.get(url)
                 .success( response => {
 
-                let $allContent = $(response).find('div.l-main-right:first');
-                let $content = $allContent.find('div.the-content-text');
+                let $content = $(response).find('article.post .entry-content > p');
 
                 $(itemPost).attr('processed', 1);
                 $(itemPost).find('p').remove();
-                $(itemPost).find('.post-more').remove();
+                $(itemPost).find('.readmore').remove();
                 $(itemPost).find('iframe').remove();
-                $(itemPost).find('.post-summary').append($content);
+                $(itemPost).find('.article_link').append($content);
             });
         });
     }
@@ -287,6 +290,8 @@
         $('aside').remove();
         $('ins').remove();
         $('div.ob-widget').remove();
+        $('#div-gpt-leaderboard').remove();
+        $('.banners_content_home').remove();
     };
 
     let procArticle = true;
@@ -332,9 +337,10 @@
         return false;
     });
 
-    addGlobalStyle('div.post-summary { width: auto; }');
+    addGlobalStyle('#boxpost article.post { width: auto !important; }');
     addGlobalStyle('article.post.first-post { margin-top: 25px; }');
     addGlobalStyle('#player-ao-vivo.playerfixo { margin: 0 780px; width: auto !important; min-height: 300px; min-width: 31%; }');
+    addGlobalStyle('.page .container > div { width: 100%; }');
 
     cleanAds();
     procArticles($('article.post[processed!=1]'));
