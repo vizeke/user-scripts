@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Whatsapp Web - Image carrosel
 // @namespace    http://whatsappweb.com/imagecarrosel
-// @version      0.1.1
+// @version      0.1.2
 // @description  Whatsapp web media slide show!
 // @author       ViZeke
 // @match        https://web.whatsapp.com/
@@ -40,11 +40,13 @@
 
     addGlobalStyle( 'div.media > div.object-fit > div { position: absolute; padding: 0; }' );
 
+    var target;
+
     //Init on global context
     $( document ).ready( function() {
 
-        function getMediaParent() {
-            let divMedia = $( 'div.media > div.object-fit > div' );
+        function getMediaParent(baseElement) {
+            let divMedia = baseElement.find('[role="button"][class]').siblings(':not([role])').find('div > div');
             if ( divMedia.length > 0 ) {
                 return divMedia;
             } else {
@@ -60,43 +62,47 @@
             }
 
             // select the target node
-            var target = $( '#app > div > span:nth-child(2)' )[ 0 ];
             // create an observer instance
             imageObserver = new MutationObserver( function( mutations ) {
-                var divParent = getMediaParent();
-                var h = divParent.height();
-                var w = divParent.width();
-                var mediaObj = $( divParent.children()[ 0 ] );
+                mutations.forEach((mutation) => {
+                    if (mutation.addedNodes.length > 0){
+                        var divParent = getMediaParent(target);
+                        // var divParent = $(mutation.addedNodes[0]).find('div');
+                        var h = divParent.height();
+                        var w = divParent.width();
+                        var mediaObj = $( divParent.children()[ 0 ] );
 
-                if ( mediaObj[ 0 ] ) {
-                    if ( mediaObj.is( 'img' ) ) {
-                        mediaObj.load( function( e ) {
-                            startTimeOutNext();
-                        } );
-                    }
+                        if ( mediaObj[ 0 ] ) {
+                            if ( mediaObj.is( 'img' ) ) {
+                                mediaObj.load( function( e ) {
+                                    startTimeOutNext();
+                                } );
+                            }
 
-                    mediaObj[ 0 ].addEventListener( 'loadeddata', function( e ) {
-                        startTimeOutNext( e.target.duration * 1000 );
-                    }, false );
+                            mediaObj[ 0 ].addEventListener( 'loadeddata', function( e ) {
+                                startTimeOutNext( e.target.duration * 1000 );
+                            }, false );
 
-                    if ( ( mediaObj.is( 'img' ) ) || ( mediaObj.is( 'video' ) ) )
-                        if ( w / h > 1.78 ) {
-                            mediaObj.css( 'width', '100%' ).css( 'height', 'auto' );
-                            divParent.css( 'width', '100%' ).css( 'height', 'auto' );
-                        } else {
-                            mediaObj.css( 'height', '100%' ).css( 'width', 'auto' );
-                            divParent.css( 'height', '100%' ).css( 'width', 'auto' );
+                            if ( ( mediaObj.is( 'img' ) ) || ( mediaObj.is( 'video' ) ) )
+                                if ( w / h > 1.78 ) {
+                                    mediaObj.css( 'width', '100%' ).css( 'height', 'auto' );
+                                    divParent.css( 'width', '100%' ).css( 'height', 'auto' );
+                                } else {
+                                    mediaObj.css( 'height', '100%' ).css( 'width', 'auto' );
+                                    divParent.css( 'height', '100%' ).css( 'width', 'auto' );
+                                }
                         }
-                }
 
-                // observer.disconnect();
-            } );
+                        // observer.disconnect();
+                    }
+                });
+            });
 
             // configuration of the observer:
             var config = { childList: true, subtree: true };
 
             // pass in the target node, as well as the observer options
-            imageObserver.observe( target, config );
+            imageObserver.observe( target[0], config );
         }
 
         var messagesObserver;
@@ -105,7 +111,7 @@
                 messagesObserver.disconnect();
             }
 
-            var target = $( '#main > div.pane-body.pane-chat-tile-container > div > div > div.message-list' )[ 0 ];
+            var targetMessages = $( '#main .copyable-area:first > div > div:last' )[ 0 ];
             messagesObserver = new MutationObserver( function( mutations ) {
                 nextMedia();
             } );
@@ -114,7 +120,7 @@
             var config = { childList: true };
 
             // pass in the target node, as well as the observer options
-            messagesObserver.observe( target, config );
+            messagesObserver.observe( targetMessages, config );
         }
 
         var timeOutNext;
@@ -141,6 +147,7 @@
         }
 
         function startObservers() {
+            target = $( '#app > div > span:nth-child(2)' );
             observeImages();
             observeMessages();
         }
