@@ -265,20 +265,21 @@
 
     function procArticles($articles){
         $articles.each( (i, itemPost) => {
-            let url = $(itemPost).first().find('a').first().attr('href');
+            let url = $(itemPost).first().find('.article_link').first().attr('href');
 
             if(document.location.href.indexOf('https') === -1){
                 url = url.replace('https://', 'http://');
             }
 
-            $.get(url)
-                .success( response => {
+            $.get(url).success( response => {
 
                 let $content = $(response).find('article.post .entry-content > p');
 
+                console.log($content);
+
                 $(itemPost).attr('processed', 1);
                 $(itemPost).find('p').remove();
-                $(itemPost).find('.readmore').remove();
+                $(itemPost).find('.readmore').parent().remove();
                 $(itemPost).find('iframe').remove();
                 $(itemPost).find('.article_link').append($content);
             });
@@ -292,6 +293,7 @@
         $('div.ob-widget').remove();
         $('#div-gpt-leaderboard').remove();
         $('.banners_content_home').remove();
+        $('article.post.sponsorship').remove();
     };
 
     let procArticle = true;
