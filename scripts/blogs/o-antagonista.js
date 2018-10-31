@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         O Antagonista - Speed Reading
 // @namespace    http://oantagonista.com/speedread
-// @version      0.9.2
+// @version      0.9.3
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
 // @match        https://www.oantagonista.com/
@@ -273,7 +273,7 @@
 
             $.get(url).success( response => {
 
-                let $content = $(response).find('article.post .entry-content > p');
+                let $content = $(response).find('article.post .entry-content > p, article.post .entry-content > :not(div.container-banner-single)');
 
                 console.log($content);
 
