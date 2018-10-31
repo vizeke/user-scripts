@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         O Antagonista - Speed Reading
 // @namespace    http://oantagonista.com/speedread
-// @version      0.9.1
+// @version      0.9.2
 // @description  Fast reading of the micro blog!
 // @author       ViZeke
 // @match        https://www.oantagonista.com/
@@ -281,6 +281,7 @@
                 $(itemPost).find('p').remove();
                 $(itemPost).find('.readmore').parent().remove();
                 $(itemPost).find('iframe').remove();
+                $(itemPost).find('.fav').remove();
                 $(itemPost).find('.article_link').append($content);
             });
         });
@@ -340,7 +341,9 @@
     });
 
     addGlobalStyle('#boxpost article.post { width: auto !important; }');
-    addGlobalStyle('article.post.first-post { margin-top: 25px; }');
+    addGlobalStyle('article.post > div { display: flex; flex-direction: row-reverse; justify-content: space-between; }');
+    addGlobalStyle('body .page article.post a.share-alt { position: relative; bottom: inherit; right: inherit; flex: 1 1 20px; }');
+    addGlobalStyle('#boxpost article.post a.article_link { flex: 100 1 400px; }');
     addGlobalStyle('#player-ao-vivo.playerfixo { margin: 0 780px; width: auto !important; min-height: 300px; min-width: 31%; }');
     addGlobalStyle('.page .container > div { width: 100%; }');
 
